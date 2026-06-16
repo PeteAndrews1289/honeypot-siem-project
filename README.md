@@ -2,140 +2,148 @@
 
 ## Overview
 
-This project documents the deployment of a live internet-facing honeypot environment hosted on a **DigitalOcean VPS** and monitored through **Splunk Enterprise**.
+This project documents the deployment of an internet-facing honeypot environment on a DigitalOcean VPS and the analysis of attacker activity in Splunk Enterprise. It addresses a practical security operations problem: defenders need safe ways to observe real external attack behavior, collect useful telemetry, and turn noisy raw events into findings that support detection and response work.
 
-The environment combines:
+The lab combines Cowrie for SSH/Telnet emulation, Conpot for ICS/SCADA protocol simulation, Ubuntu hardening, firewall controls, and Splunk for log ingestion, searching, enrichment, and dashboarding. The project captured real attacker traffic, including brute-force attempts, successful weak-credential logins, reconnaissance commands, and infrastructure-oriented probing.
 
-- **Cowrie** for SSH and Telnet emulation
-- **Conpot** for ICS / SCADA simulation
-- **Splunk** for centralized ingestion, search, enrichment, and dashboarding
+The final system demonstrates a lightweight SOC-style workflow: deploy monitored deception services, ingest logs, enrich and search attacker activity, build dashboards, and summarize findings in a way that is useful for security analysts and hiring managers reviewing hands-on work.
 
-The goal of the project was to capture real attacker activity, observe behavior after compromise, and present the data through a modern SOC-style dashboard.
+## Key Features
 
-## Technologies Used
+- Deployed a public honeypot environment on a DigitalOcean VPS.
+- Configured Cowrie to emulate SSH and Telnet services.
+- Configured Conpot to simulate ICS/SCADA-style services.
+- Hardened the VPS using firewall and service-exposure controls.
+- Ingested honeypot logs into Splunk Enterprise.
+- Built a dashboard to monitor event distribution, attacker IPs, login outcomes, commands, timelines, and global attack sources.
+- Captured real brute-force attempts, successful weak-credential logins, and post-authentication commands.
+- Compared high-volume SSH activity against lower-volume ICS/SCADA probing.
+- Documented phased setup notes, dashboard logic, firewall rules, and findings.
 
-- DigitalOcean
-- Ubuntu
+## Architecture
+
+The environment places Cowrie and Conpot on a public VPS so they can receive controlled external traffic. Honeypot logs are collected locally and ingested into Splunk. Splunk searches and dashboards are then used to analyze attacker behavior, source IPs, successful logins, command execution, and protocol-specific activity.
+
+```mermaid
+flowchart LR
+    Internet[External Attack Traffic] --> VPS[DigitalOcean Ubuntu VPS]
+
+    subgraph VPS[DigitalOcean Ubuntu VPS]
+        Firewall[UFW / iptables Rules]
+        Cowrie[Cowrie SSH/Telnet Honeypot]
+        Conpot[Conpot ICS/SCADA Honeypot]
+        Logs[Local Honeypot Logs]
+        Splunk[Splunk Enterprise]
+    end
+
+    Firewall --> Cowrie
+    Firewall --> Conpot
+    Cowrie --> Logs
+    Conpot --> Logs
+    Logs --> Splunk
+    Splunk --> Dashboard[SOC Dashboard]
+    Splunk --> Findings[Findings Summary]
+```
+
+## Tools & Technologies
+
+### Cloud / Infrastructure
+
+- DigitalOcean VPS
+- Ubuntu Linux
+- Public internet-facing lab host
+
+### Security Tools
+
 - Cowrie
 - Conpot
 - Splunk Enterprise
-- UFW
-- iptables
 - Nmap
-- SPL
 
-## Project Goals
+### Programming / Scripting
 
-- deploy a safe public-facing honeypot
-- collect real attacker traffic
-- capture brute-force and post-login activity
-- simulate infrastructure-facing services
-- ingest and analyze logs in Splunk
-- build a modern dashboard for attacker monitoring
+- Linux shell commands
+- Splunk SPL searches
+- Service configuration notes
 
-## Environment Summary
+### Monitoring / Logging
 
-### Cowrie
-- SSH honeypot on port `2222`
-- Telnet honeypot on port `23`
-- port `22` redirected toward Cowrie
-- weak credentials enabled for controlled attacker interaction
+- Cowrie SSH/Telnet logs
+- Conpot ICS/SCADA logs
+- Splunk dashboards
+- Geolocation enrichment
 
-### Conpot
-- ICS / SCADA simulation
-- logs collected through local file ingestion
+### Automation / CI/CD
 
-### Splunk
-- installed directly on the VPS
-- used for searches, dashboarding, and geolocation enrichment
+- No CI/CD pipeline is included in this lab
 
-## Key Outcomes
+## Security Concepts Demonstrated
 
-- captured thousands of brute-force attempts
-- observed repeated attacker IPs
-- recorded successful logins using weak credentials
-- captured attacker reconnaissance commands
-- visualized event distribution, login outcomes, timelines, and global attack sources
+This project demonstrates honeypot deployment, deception technology, SIEM integration, threat analysis, attacker behavior analysis, and SOC dashboarding. It also shows the difference between high-volume opportunistic attacks against common IT services and lower-volume infrastructure or ICS-oriented probing.
 
-## Repository Layout
+The Cowrie portion highlights brute-force behavior, weak credential abuse, successful logins, and post-authentication reconnaissance. The Conpot portion highlights ICS/SCADA protocol probing and malformed or incomplete requests that are useful for recognizing broad scanning campaigns.
 
-- `docs/` – phased project documentation
-- `dashboards/` – search logic and dashboard notes
-- `configs/` – deployment and service notes
-- `screenshots/` – screenshots by phase
-- `artifacts/` – findings and summaries
+The Splunk portion demonstrates how raw honeypot telemetry can be turned into analyst-friendly views for activity volume, top attackers, login outcomes, attacker commands, timelines, and geographic distribution.
 
-## Resume Summary
+## Implementation Steps
 
-Built and deployed a public honeypot environment on a DigitalOcean VPS using Cowrie and Conpot, ingested logs into Splunk SIEM, and analyzed real attacker behavior including brute-force attempts, successful logins, command execution, and global attack distribution.
+1. Planned the honeypot environment and exposure boundaries.
+2. Provisioned and hardened an Ubuntu VPS on DigitalOcean.
+3. Configured firewall rules with UFW and iptables.
+4. Deployed Cowrie for SSH and Telnet honeypot coverage.
+5. Deployed Conpot for ICS/SCADA protocol simulation.
+6. Configured log collection for honeypot activity.
+7. Installed and configured Splunk Enterprise.
+8. Ingested Cowrie and Conpot logs into Splunk.
+9. Built searches for attacker IPs, successful logins, failed logins, commands, and timelines.
+10. Built a dashboard to present honeypot activity like a lightweight SOC console.
+11. Summarized findings and attacker behavior patterns.
 
-## Findings & Analysis
+## Results / Findings
 
-### Attacker Volume & Distribution
-- Observed activity from **4,624 unique external IP addresses**
-- SSH honeypot (Cowrie) received **~950,000 events**, indicating high-volume brute-force and automated scanning activity
-- ICS honeypot (Conpot) received **lower volume (~1,100 events)** but more specialized protocol interactions
+The environment captured activity from 4,624 unique external IP addresses. Cowrie generated the majority of the attack volume, with roughly 950,000 SSH/Telnet-related events. Conpot generated lower-volume but more specialized infrastructure-style probing, including S7, Modbus, and SNMP interactions.
 
----
+The Cowrie honeypot recorded 613 successful logins using weak/default credentials and 457 attacker-issued commands after authentication. Observed behavior included system reconnaissance, process inspection, and payload delivery attempts using tools such as `wget`, `curl`, `tftp`, and `ftpget`.
 
-### SSH (Cowrie) Behavior
-- **613 successful logins** using weak/default credentials:
-  - admin/admin
-  - root/root
-  - user/password
-- **457 attacker-issued commands** observed post-authentication
+The Conpot activity primarily reflected reconnaissance, malformed protocol traffic, and protocol fingerprinting rather than deep exploitation. The project also identified 54 attacker IPs that interacted with both SSH and ICS services, showing that some scanning campaigns probe multiple service categories.
 
-Common attacker behavior:
-- System reconnaissance:
-  - `uname -a`
-  - `cat /proc/cpuinfo`
-  - `ifconfig`
-- Malware/miner checks:
-  - `ps | grep miner`
-- Payload delivery attempts:
-  - `wget`, `curl`, `tftp`, `ftpget`
+## Screenshots
 
-**Conclusion:**  
-Attackers were not only scanning but successfully compromising the system and attempting post-exploitation actions.
+Existing visual artifact:
 
----
+- `Honeypot SOC Dashboard Copy.pdf`
 
-### ICS (Conpot) Behavior
-Observed protocol interactions included:
-- **S7 (Siemens PLC) connections (~388 events)**
-- **Modbus interactions (~12 events)**
-- **SNMP enumeration (~12 events)**
+Suggested screenshots to add:
 
-Significant portion of traffic consisted of:
-- malformed packets
-- invalid protocol lengths
-- incomplete requests
+- `screenshots/splunk-dashboard-overview.png`
+- `screenshots/top-attacking-ips.png`
+- `screenshots/successful-logins.png`
+- `screenshots/attacker-commands.png`
+- `screenshots/global-attack-map.png`
+- `screenshots/cowrie-service-status.png`
+- `screenshots/conpot-service-status.png`
+- `screenshots/architecture.png`
 
-**Conclusion:**  
-ICS activity primarily reflected **reconnaissance and protocol fingerprinting**, rather than full exploitation.
+## Challenges & Lessons Learned
 
----
+- Public honeypots receive high-volume automated traffic quickly after exposure.
+- Weak credentials generate useful attacker behavior for analysis, but the environment must be isolated and controlled.
+- Cowrie produced much higher event volume, while Conpot produced lower-volume but more specialized protocol signals.
+- Dashboard design matters because raw honeypot logs are noisy and need analyst-friendly grouping.
+- Comparing IT and ICS-oriented traffic provides useful context about broad attacker scanning behavior.
 
-### Cross-Targeting Behavior
-- **54 attacker IPs interacted with both SSH and ICS services**
-- Top cross-targeting IP generated **281 events**
+## Relevance to Security Roles
 
-**Conclusion:**  
-A subset of attackers probed both traditional IT services and ICS protocols, indicating broader scanning campaigns.
+This project maps well to SOC Analyst, Threat Intelligence Analyst, Detection Engineer, and Security Engineer roles. It demonstrates real attacker telemetry collection, SIEM analysis, dashboarding, finding development, and the ability to communicate observed behavior clearly.
 
----
+It also supports incident response and threat hunting conversations because it shows how to move from raw logs to attacker behavior patterns and investigation questions.
 
-### Key Insight
-The dataset demonstrates a clear distinction between:
+## Future Improvements
 
-- **IT attacks (SSH):**
-  - high volume
-  - frequent compromise
-  - post-exploitation activity
-
-- **OT/ICS attacks:**
-  - lower volume
-  - protocol-aware reconnaissance
-  - limited deep interaction
-
-This reflects real-world attacker behavior in internet-facing environments.
+- Add sanitized sample logs from Cowrie and Conpot.
+- Add exported Splunk dashboard XML or JSON.
+- Add SPL query files for key dashboard panels.
+- Add a short findings report with screenshots and timeline analysis.
+- Add alerting for successful logins, repeated attacker IPs, and suspicious command execution.
+- Add stronger isolation documentation for running public honeypots safely.
+- Add enrichment for ASN, country, and known scanner classification.

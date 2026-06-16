@@ -107,22 +107,19 @@ The Cowrie honeypot recorded 613 successful logins using weak/default credential
 
 The Conpot activity primarily reflected reconnaissance, malformed protocol traffic, and protocol fingerprinting rather than deep exploitation. The project also identified 54 attacker IPs that interacted with both SSH and ICS services, showing that some scanning campaigns probe multiple service categories.
 
-## Screenshots
+## Evidence / Artifacts
 
-Existing visual artifact:
+Artifacts included in this repository:
 
 - `Honeypot SOC Dashboard Copy.pdf`
-
-Suggested screenshots to add:
-
-- `screenshots/splunk-dashboard-overview.png`
-- `screenshots/top-attacking-ips.png`
-- `screenshots/successful-logins.png`
-- `screenshots/attacker-commands.png`
-- `screenshots/global-attack-map.png`
-- `screenshots/cowrie-service-status.png`
-- `screenshots/conpot-service-status.png`
-- `screenshots/architecture.png`
+- `artifacts/findings-summary.md`
+- `artifacts/sample-queries.md`
+- `dashboards/dashboard-overview.md`
+- `dashboards/splunk-searches.md`
+- `configs/cowrie-notes.md`
+- `configs/conpot-notes.md`
+- `configs/firewall-rules.md`
+- `docs/phase-0-planning.md` through `docs/phase-6-future-improvements.md`
 
 ## Challenges & Lessons Learned
 
@@ -142,8 +139,7 @@ It also supports incident response and threat hunting conversations because it s
 
 - Add sanitized sample logs from Cowrie and Conpot.
 - Add exported Splunk dashboard XML or JSON.
-- Add SPL query files for key dashboard panels.
-- Add a short findings report with screenshots and timeline analysis.
+- Add a timeline analysis report for a representative attacker session.
 - Add alerting for successful logins, repeated attacker IPs, and suspicious command execution.
 - Add stronger isolation documentation for running public honeypots safely.
 - Add enrichment for ASN, country, and known scanner classification.

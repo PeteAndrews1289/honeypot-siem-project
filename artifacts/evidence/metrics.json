@@ -1,0 +1,108 @@
+{
+  "aggregate_export": {
+    "conpot_only_source_events": 1104,
+    "conpot_only_sources": 212,
+    "cowrie_only_source_events": 949972,
+    "cowrie_only_sources": 4358,
+    "cross_targeting_source_events": 1317,
+    "cross_targeting_sources": 54,
+    "globally_routable_source_events": 952391,
+    "globally_routable_sources": 4623,
+    "median_events_per_source": 18.0,
+    "non_global_source_events": 2,
+    "non_global_sources": 1,
+    "top_10_source_event_share": 0.528976,
+    "top_source_event_share": 0.173471,
+    "total_events": 952393,
+    "unique_source_values": 4624
+  },
+  "command_export": {
+    "categories": {
+      "blank": 24,
+      "host_discovery": 326,
+      "other": 20,
+      "payload_transfer": 12,
+      "permission_change": 13,
+      "process_or_network_discovery": 57,
+      "shell_or_interpreter": 5
+    },
+    "distinct_rows": 53,
+    "nonempty_occurrences": 433,
+    "tool_mentions": {
+      "curl": 6,
+      "ftpget": 6,
+      "tftp": 6,
+      "wget": 12
+    },
+    "total_occurrences": 457
+  },
+  "high_severity_export": {
+    "categories": {
+      "Conpot COTP": 28,
+      "Conpot Modbus": 157,
+      "Conpot Other": 17,
+      "Conpot S7": 507,
+      "Cowrie command input": 457,
+      "Cowrie other high-signal event": 1,
+      "Cowrie successful login": 613
+    },
+    "end_utc": "2026-04-23T13:10:58Z",
+    "rows": 1780,
+    "start_utc": "2026-04-02T16:05:15.650000Z"
+  },
+  "ics_export": {
+    "end_utc": "2026-04-22T23:26:36.931000Z",
+    "protocols": {
+      "COTP": 28,
+      "Modbus": 157,
+      "Other": 17,
+      "S7": 507,
+      "SNMP": 12
+    },
+    "rows": 721,
+    "start_utc": "2026-04-02T16:05:15.650000Z"
+  },
+  "master_sample": {
+    "activity_types": {
+      "HTTP": 20,
+      "Other": 94,
+      "cowrie.client.kex": 1839,
+      "cowrie.client.size": 2,
+      "cowrie.client.version": 1999,
+      "cowrie.command.failed": 2,
+      "cowrie.command.input": 10,
+      "cowrie.direct-tcpip.data": 2,
+      "cowrie.direct-tcpip.ja4h": 2,
+      "cowrie.direct-tcpip.request": 2,
+      "cowrie.log.closed": 6,
+      "cowrie.login.failed": 1923,
+      "cowrie.login.success": 15,
+      "cowrie.session.closed": 2014,
+      "cowrie.session.connect": 2064,
+      "cowrie.session.params": 6
+    },
+    "blank_source_rows": 79,
+    "end_utc": "2026-04-23T14:11:21.649000Z",
+    "honeypots": {
+      "Conpot": 114,
+      "Cowrie": 9886
+    },
+    "rows": 10000,
+    "start_utc": "2026-04-23T03:29:50Z",
+    "unique_nonblank_sources": 302
+  },
+  "privacy": {
+    "attacker_ids": "Sequential pseudonyms ranked by total event count; no mapping is published.",
+    "raw_commands_or_payloads_published": false,
+    "raw_source_ips_published": false
+  },
+  "schema_version": 1,
+  "source_files": {
+    "attacker_summary.csv": "42509a364ff100eadcd1d9da34e046b376b1a19406075571e58977917cedeb43",
+    "cowrie_commands.csv": "800cff11abf6bb07b0d87d7be3bb01195cb761b73ab1c312788de56435066c66",
+    "cross_targeting.csv": "960f70aae57d406811d76e9393c22b4df0c8fac4e3d9817f386b96e25c478b73",
+    "high_severity.csv": "fca11d5db58c5733a746bca95265840ff529bff6aba84f19960728a5b04340c0",
+    "ics_activity.csv": "fb5fec2c6f8217f5c50d995234e4a625da2ceb7fb088a63f59016621769464a4",
+    "master_dataset.csv": "e75a1c920fc5ce85741a42eafbb4077fd7f568d2a441c45f6623c42d8cb989e4"
+  }
+}

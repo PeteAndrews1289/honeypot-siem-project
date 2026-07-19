@@ -1,0 +1,14 @@
+/data/raw/
+/private/
+/master_dataset.csv
+/cross_targeting.csv
+/high_severity.csv
+/ics_activity.csv
+/cowrie_commands.csv
+/attacker_summary.csv
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.log
+.DS_Store

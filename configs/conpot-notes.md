@@ -1,4 +1,6 @@
-# Conpot Notes
+# Conpot Deployment Notes
+
+These are retrospective deployment notes, not a complete deployable Conpot configuration.
 
 ## Purpose
 
@@ -26,6 +28,10 @@ Conpot logs captured:
 - session timeouts
 - repeated source IPs
 
+The retained ICS export contains 721 records: 507 S7, 157 Modbus, 28 COTP, 12 SNMP, and 17 other interactions. These are protocol-specific observations against simulated services, not proof of successful exploitation or actor intent.
+
 ## Analytical Value
 
-Conpot generates less traffic than Cowrie, but its activity is more useful for showing simulated infrastructure exposure rather than simple credential abuse.
+Conpot generated less source-attributed volume than Cowrie while providing evidence of interaction across several simulated industrial protocols.
+
+The VPS and associated services were destroyed after evidence collection.

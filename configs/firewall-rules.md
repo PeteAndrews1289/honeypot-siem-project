@@ -1,4 +1,4 @@
-# Firewall & Exposure Notes
+# Exposure Controls and Retrospective Limitations
 
 ## Administrative Access
 
@@ -16,4 +16,8 @@ The project intentionally exposed or redirected traffic for:
 
 ## Notes
 
-Only intentionally exposed services were opened. The goal was to maximize attacker interaction on the VPS without exposing the operator's home network.
+The goal was to maximize interaction on an isolated VPS without exposing the operator's home network. The retained documentation supports the intended service exposure but does not include an export of the final UFW/iptables ruleset.
+
+Splunk Web on port `8000` was reachable from the public internet during the lab. That simplified analysis but is not a recommended production design. A future deployment should restrict administration behind a VPN or allowlist, place the SIEM on a separate management plane, enforce egress controls, and retain machine-readable firewall evidence.
+
+The VPS and associated services were destroyed after evidence collection.

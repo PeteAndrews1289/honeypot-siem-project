@@ -53,10 +53,12 @@ Cowrie captured:
   - `uname`
   - `id`
 
+The retained high-signal export contains 613 successful authentication events and 457 command-input occurrences, 433 of which were non-empty. Cowrie emulated the post-authentication environment; observed commands were not executed on the underlying VPS.
+
 ## Result
 
 Cowrie became the highest-volume source of useful attacker interaction in the project.
 
 ## Insight
 
-Redirecting port 22 and enabling weak credentials were the two most important changes in the entire project. They converted the environment from passive logging into active post-authentication attacker observation.
+Redirecting port 22 and enabling synthetic weak credentials converted the environment from passive connection logging into observation of post-authentication interaction with Cowrie's emulated service.

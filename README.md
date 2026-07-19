@@ -1,145 +1,120 @@
-# Honeypot SIEM Project
+# Honeypot SIEM Case Study
 
-## Overview
+[![Validate evidence](https://github.com/PeteAndrews1289/honeypot-siem-project/actions/workflows/validate-evidence.yml/badge.svg)](https://github.com/PeteAndrews1289/honeypot-siem-project/actions/workflows/validate-evidence.yml)
 
-This project documents the deployment of an internet-facing honeypot environment on a DigitalOcean VPS and the analysis of attacker activity in Splunk Enterprise. It addresses a practical security operations problem: defenders need safe ways to observe real external attack behavior, collect useful telemetry, and turn noisy raw events into findings that support detection and response work.
+> **Status: completed and decommissioned.** The VPS and associated services were destroyed after collection. This repository contains a sanitized retrospective case study; raw telemetry is intentionally excluded.
 
-The lab combines Cowrie for SSH/Telnet emulation, Conpot for ICS/SCADA protocol simulation, Ubuntu hardening, firewall controls, and Splunk for log ingestion, searching, enrichment, and dashboarding. The project captured real attacker traffic, including brute-force attempts, successful weak-credential logins, reconnaissance commands, and infrastructure-oriented probing.
+This project deployed Cowrie and Conpot on an isolated DigitalOcean VPS, ingested the resulting SSH, Telnet, and ICS/SCADA telemetry into Splunk, and turned the exports into a privacy-preserving, testable evidence package.
 
-The final system demonstrates a lightweight SOC-style workflow: deploy monitored deception services, ingest logs, enrich and search attacker activity, build dashboards, and summarize findings in a way that is useful for security analysts and hiring managers reviewing hands-on work.
+![Sanitized honeypot evidence overview](docs/images/honeypot-evidence-overview.svg)
 
-## Key Features
+## Results at a Glance
 
-- Deployed a public honeypot environment on a DigitalOcean VPS.
-- Configured Cowrie to emulate SSH and Telnet services.
-- Configured Conpot to simulate ICS/SCADA-style services.
-- Hardened the VPS using firewall and service-exposure controls.
-- Ingested honeypot logs into Splunk Enterprise.
-- Built a dashboard to monitor event distribution, attacker IPs, login outcomes, commands, timelines, and global attack sources.
-- Captured real brute-force attempts, successful weak-credential logins, and post-authentication commands.
-- Compared high-volume SSH activity against lower-volume ICS/SCADA probing.
-- Documented phased setup notes, dashboard logic, firewall rules, and findings.
+| Result | Verified value | Definition |
+|---|---:|---|
+| Source-attributed event records | **952,393** | Sum of `total_events` in the aggregate source export; events without an extracted source are outside this denominator |
+| Distinct observed source values | **4,624** | 4,623 globally routable addresses plus one loopback artifact with two events |
+| Cowrie only / Conpot only / both | **4,358 / 212 / 54** sources | “Both” means the same observed source address appeared in both service datasets; it does not establish actor identity or campaign linkage |
+| Successful Cowrie authentication events | **613** | Records containing `cowrie.login.success` |
+| Cowrie command-input events | **457** | `cowrie.command.input`; 433 occurrences contained a non-empty emulated command |
+| ICS-protocol interaction records | **721** | 507 S7, 157 Modbus, 28 COTP, 12 SNMP, and 17 other records |
 
-## Architecture
+The [sanitized evidence package](artifacts/evidence/README.md) includes pseudonymized source-level data, reconciled aggregate tables, source-file hashes, UTC windows where available, generation code, tests, and automated privacy checks.
 
-The environment places Cowrie and Conpot on a public VPS so they can receive controlled external traffic. Honeypot logs are collected locally and ingested into Splunk. Splunk searches and dashboards are then used to analyze attacker behavior, source IPs, successful logins, command execution, and protocol-specific activity.
+## Architecture and Evidence Flow
 
 ```mermaid
 flowchart LR
-    Internet[External Attack Traffic] --> VPS[DigitalOcean Ubuntu VPS]
+    Internet[Unsolicited internet traffic] --> Edge[Firewall and port redirection]
 
-    subgraph VPS[DigitalOcean Ubuntu VPS]
-        Firewall[UFW / iptables Rules]
-        Cowrie[Cowrie SSH/Telnet Honeypot]
-        Conpot[Conpot ICS/SCADA Honeypot]
-        Logs[Local Honeypot Logs]
-        Splunk[Splunk Enterprise]
+    subgraph Lab[Decommissioned DigitalOcean VPS]
+        Edge --> Cowrie[Cowrie SSH and Telnet]
+        Edge --> Conpot[Conpot ICS protocols]
+        Cowrie --> Logs[Local telemetry]
+        Conpot --> Logs
+        Logs --> Splunk[Splunk Enterprise]
     end
 
-    Firewall --> Cowrie
-    Firewall --> Conpot
-    Cowrie --> Logs
-    Conpot --> Logs
-    Logs --> Splunk
-    Splunk --> Dashboard[SOC Dashboard]
-    Splunk --> Findings[Findings Summary]
+    Splunk --> Exports[Six CSV exports]
+    Exports --> Builder[Privacy-preserving evidence builder]
+    Builder --> Public[Sanitized public artifacts]
+    Public --> CI[Reconciliation and redaction checks]
 ```
 
-## Tools & Technologies
+The lab deliberately combined a high-volume credential-facing honeypot with lower-volume industrial-protocol emulation. Splunk provided search, field extraction, time analysis, and dashboarding. The public evidence builder then removed source IPs, credentials, raw commands, payload indicators, session identifiers, and host paths before producing the artifacts in this repository.
 
-### Cloud / Infrastructure
+## Findings
 
-- DigitalOcean VPS
-- Ubuntu Linux
-- Public internet-facing lab host
+### Activity was concentrated
 
-### Security Tools
+The median source produced 18 event records, while the largest source produced 17.3% of all source-attributed records. The top ten sources produced 52.9%. This skew shows why raw event totals alone are a weak measure of distinct activity.
 
-- Cowrie
-- Conpot
-- Splunk Enterprise
-- Nmap
+### Cowrie produced most source-attributed volume
 
-### Programming / Scripting
+- 4,358 source values appeared only in Cowrie data and accounted for 949,972 events.
+- 212 appeared only in Conpot data and accounted for 1,104 events.
+- 54 appeared in both service datasets and accounted for 1,317 combined events.
 
-- Linux shell commands
-- Splunk SPL searches
-- Service configuration notes
+The overlap is an observable source-address relationship, not proof that one actor or campaign controlled the activity.
 
-### Monitoring / Logging
+### Successful logins produced post-authentication behavior
 
-- Cowrie SSH/Telnet logs
-- Conpot ICS/SCADA logs
-- Splunk dashboards
-- Geolocation enrichment
+The high-signal export contains 613 successful Cowrie authentication events and 457 command-input occurrences. Of the command occurrences, 433 were non-empty. Host and network discovery dominated the categorized activity. Twelve occurrences contained a payload-transfer utility; these are observed retrieval attempts inside Cowrie’s emulated environment, not proof of successful malware execution or host compromise.
 
-### Automation / CI/CD
+### Conpot recorded several protocol families
 
-- No CI/CD pipeline is included in this lab
+The ICS export contains 721 interaction records: 507 S7, 157 Modbus, 28 COTP, 12 SNMP, and 17 other records. These demonstrate protocol-specific scanning and interaction. They do not establish attacker intent, identity, or successful exploitation.
 
-## Security Concepts Demonstrated
+See [findings-summary.md](artifacts/findings-summary.md) for the evidence-to-claim mapping and [sample-queries.md](artifacts/sample-queries.md) for the SPL used to derive the analysis.
 
-This project demonstrates honeypot deployment, deception technology, SIEM integration, threat analysis, attacker behavior analysis, and SOC dashboarding. It also shows the difference between high-volume opportunistic attacks against common IT services and lower-volume infrastructure or ICS-oriented probing.
+## Data Scope and Limitations
 
-The Cowrie portion highlights brute-force behavior, weak credential abuse, successful logins, and post-authentication reconnaissance. The Conpot portion highlights ICS/SCADA protocol probing and malformed or incomplete requests that are useful for recognizing broad scanning campaigns.
+The six source exports came from different Splunk searches and windows:
 
-The Splunk portion demonstrates how raw honeypot telemetry can be turned into analyst-friendly views for activity volume, top attackers, login outcomes, attacker commands, timelines, and geographic distribution.
+- The source summary supports aggregate source and event totals but contains no time field.
+- The high-signal export spans 2026-04-02 16:05:15.650 UTC through 2026-04-23 13:10:58 UTC.
+- The ICS export spans 2026-04-02 16:05:15.650 UTC through 2026-04-22 23:26:36.931 UTC.
+- The file originally named `master_dataset.csv` is a capped 10,000-row recent-event sample covering only 2026-04-23 03:29:50 UTC through 14:11:21.649 UTC. It must not be treated as the full corpus.
 
-## Implementation Steps
+Additional limitations:
 
-1. Planned the honeypot environment and exposure boundaries.
-2. Provisioned and hardened an Ubuntu VPS on DigitalOcean.
-3. Configured firewall rules with UFW and iptables.
-4. Deployed Cowrie for SSH and Telnet honeypot coverage.
-5. Deployed Conpot for ICS/SCADA protocol simulation.
-6. Configured log collection for honeypot activity.
-7. Installed and configured Splunk Enterprise.
-8. Ingested Cowrie and Conpot logs into Splunk.
-9. Built searches for attacker IPs, successful logins, failed logins, commands, and timelines.
-10. Built a dashboard to present honeypot activity like a lightweight SOC console.
-11. Summarized findings and attacker behavior patterns.
+- A source IP is not equivalent to a person, organization, or campaign.
+- IP geolocation is approximate; no country-level claims are included because the retained exports do not contain a country aggregate.
+- The project ran Splunk on the same public VPS, which simplified the lab but is not the recommended production architecture.
+- The retained documentation does not fully prove outbound filtering or management-plane separation. A future design should isolate collection, analysis, and administration.
 
-## Results / Findings
+## Reproducible Public Evidence
 
-The environment captured activity from 4,624 unique external IP addresses. Cowrie generated the majority of the attack volume, with roughly 950,000 SSH/Telnet-related events. Conpot generated lower-volume but more specialized infrastructure-style probing, including S7, Modbus, and SNMP interactions.
+Raw exports remain private. To rebuild the public evidence locally:
 
-The Cowrie honeypot recorded 613 successful logins using weak/default credentials and 457 attacker-issued commands after authentication. Observed behavior included system reconnaissance, process inspection, and payload delivery attempts using tools such as `wget`, `curl`, `tftp`, and `ftpget`.
+```bash
+python3 scripts/build_evidence.py \
+  --input-dir /path/to/private/exports \
+  --output-dir artifacts/evidence
 
-The Conpot activity primarily reflected reconnaissance, malformed protocol traffic, and protocol fingerprinting rather than deep exploitation. The project also identified 54 attacker IPs that interacted with both SSH and ICS services, showing that some scanning campaigns probe multiple service categories.
+python3 scripts/validate_public_evidence.py artifacts/evidence
+python3 -m unittest discover -s tests -v
+```
 
-## Evidence / Artifacts
+The validation workflow checks that:
 
-Artifacts included in this repository:
+- 4,624 pseudonymous source rows reconcile to 952,393 source-attributed events.
+- All 54 cross-targeting rows are a consistent subset of the source summary.
+- Command, ICS, and high-signal category totals reconcile to their exports.
+- Public CSV/JSON artifacts contain no raw IPs, URLs, UUIDs, host paths, or sensitive column names.
 
-- `Honeypot SOC Dashboard Copy.pdf`
-- `artifacts/findings-summary.md`
-- `artifacts/sample-queries.md`
-- `dashboards/dashboard-overview.md`
-- `dashboards/splunk-searches.md`
-- `configs/cowrie-notes.md`
-- `configs/conpot-notes.md`
-- `configs/firewall-rules.md`
-- `docs/phase-0-planning.md` through `docs/phase-6-future-improvements.md`
+## Repository Map
 
-## Challenges & Lessons Learned
+- [`artifacts/evidence/`](artifacts/evidence/) — sanitized data, manifest, hashes, and metric definitions.
+- [`scripts/`](scripts/) — dependency-free evidence generation and validation tools.
+- [`tests/`](tests/) — synthetic tests for aggregation and redaction behavior.
+- [`artifacts/`](artifacts/) — findings and query index.
+- [`dashboards/`](dashboards/) — dashboard design and Splunk searches.
+- [`docs/`](docs/) — phased deployment and analysis retrospective.
+- [`configs/`](configs/) — retained deployment and exposure notes.
 
-- Public honeypots receive high-volume automated traffic quickly after exposure.
-- Weak credentials generate useful attacker behavior for analysis, but the environment must be isolated and controlled.
-- Cowrie produced much higher event volume, while Conpot produced lower-volume but more specialized protocol signals.
-- Dashboard design matters because raw honeypot logs are noisy and need analyst-friendly grouping.
-- Comparing IT and ICS-oriented traffic provides useful context about broad attacker scanning behavior.
+## Tools and Skills Demonstrated
 
-## Relevance to Security Roles
+Cowrie · Conpot · Splunk Enterprise · SPL · Linux · DigitalOcean · Python · privacy-preserving data release · evidence validation · security analysis
 
-This project maps well to SOC Analyst, Threat Intelligence Analyst, Detection Engineer, and Security Engineer roles. It demonstrates real attacker telemetry collection, SIEM analysis, dashboarding, finding development, and the ability to communicate observed behavior clearly.
-
-It also supports incident response and threat hunting conversations because it shows how to move from raw logs to attacker behavior patterns and investigation questions.
-
-## Future Improvements
-
-- Add sanitized sample logs from Cowrie and Conpot.
-- Add exported Splunk dashboard XML or JSON.
-- Add a timeline analysis report for a representative attacker session.
-- Add alerting for successful logins, repeated attacker IPs, and suspicious command execution.
-- Add stronger isolation documentation for running public honeypots safely.
-- Add enrichment for ASN, country, and known scanner classification.
+This case study is relevant to SOC analysis, detection engineering, threat hunting, and security engineering because it shows the full path from controlled telemetry collection through SIEM investigation, defensible findings, sanitized evidence publication, and automated validation.

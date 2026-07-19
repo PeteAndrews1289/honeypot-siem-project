@@ -2,7 +2,7 @@
 
 ## Objective
 
-Deploy a publicly reachable DigitalOcean VPS and harden it enough to safely host attacker-facing honeypot services.
+Deploy a publicly reachable DigitalOcean VPS with bounded controls for a time-limited attacker-facing honeypot experiment.
 
 ## Process
 
@@ -30,8 +30,10 @@ The VPS was hardened by:
 
 ## Result
 
-The droplet became the isolated public target for the project while administrative access remained controlled through the non-root `honeypot` user.
+The droplet became the isolated public target for the project while administrative access was intended to remain separate through the non-root `honeypot` user. The retained documentation does not include the final firewall export, outbound-control evidence, or final service-user state, so this should be read as a deployment retrospective rather than proof of production hardening.
 
 ## Insight
 
 This phase established the core safety boundary of the project: the VPS became the attack surface, while the operator machine remained only a management client.
+
+Splunk Web was publicly reachable during the lab, which is a documented limitation. The VPS and associated services were destroyed after collection.

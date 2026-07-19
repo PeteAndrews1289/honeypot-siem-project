@@ -1,0 +1,8 @@
+category,occurrences
+host_discovery,326
+process_or_network_discovery,57
+blank,24
+other,20
+permission_change,13
+payload_transfer,12
+shell_or_interpreter,5

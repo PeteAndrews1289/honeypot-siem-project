@@ -2,7 +2,7 @@
 
 ## Objective
 
-Deploy Conpot to simulate infrastructure-facing and ICS / SCADA-style services and collect lower-volume, higher-signal traffic.
+Deploy Conpot to simulate infrastructure-facing and ICS / SCADA-style services and collect protocol-specific interaction records.
 
 ## Process
 
@@ -48,8 +48,8 @@ Observed Conpot log behavior included:
 
 ## Result
 
-Conpot successfully generated and logged live attacker interaction against simulated infrastructure services.
+Conpot successfully generated and logged unsolicited interaction against simulated infrastructure services. The retained export contains 721 records: 507 S7, 157 Modbus, 28 COTP, 12 SNMP, and 17 other interactions.
 
 ## Insight
 
-Conpot generated less traffic than Cowrie, but when it was hit, the traffic was more useful for demonstrating infrastructure-oriented probing rather than simple credential brute forcing.
+Conpot generated less source-attributed volume than Cowrie while demonstrating observable interaction with several industrial-protocol simulations. The records do not establish actor intent or successful exploitation.

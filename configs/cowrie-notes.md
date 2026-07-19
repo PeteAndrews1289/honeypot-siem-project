@@ -1,7 +1,3 @@
-
-## `configs/cowrie-notes.md`
-
-```markdown
 # Cowrie Notes
 
 ## Purpose
@@ -40,5 +36,7 @@ Useful runtime checks included:
 The environment produced:
 
 - repeated brute-force attempts
-- successful authentications
-- command execution events such as `uname` and `id`
+- 613 successful authentication events in the retained high-signal export
+- 457 command-input occurrences, including 433 non-empty values
+
+Cowrie emulated the post-authentication environment. Observed commands are evidence of interaction with the honeypot, not execution on the underlying VPS.

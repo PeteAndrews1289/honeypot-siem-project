@@ -30,10 +30,20 @@ Attacker → Internet → DigitalOcean VPS → Honeypot Services → Splunk → 
 
 ## Why This Architecture
 
-This design supports two different attacker classes:
+This design exposes two different service categories:
 
-- **high-volume opportunistic attackers** hitting SSH and Telnet
-- **lower-volume, higher-signal infrastructure probing** against ICS-style services
+- SSH and Telnet emulation through Cowrie
+- ICS-style protocol emulation through Conpot
+
+Telemetry can describe observed source and protocol behavior; it cannot establish actor identity or intent by itself.
+
+## Retrospective Safety Boundaries
+
+- The experiment used a VPS rather than the operator's home network.
+- Raw telemetry was retained privately because it contains source IPs, submitted credentials, commands, URLs, and session identifiers.
+- The public evidence release contains only sanitized aggregates and pseudonyms.
+- The VPS and associated services were destroyed after the collection period.
+- A stronger future design would separate the collector, SIEM, and administrative plane and retain machine-readable firewall and egress-control evidence.
 
 ## Insight
 
